@@ -6,6 +6,8 @@
 // @author       melashri
 // @match        https://news.ycombinator.com/*
 // @grant        GM_addStyle
+// @updateURL    https://github.com/MohamedElashri/HN/raw/main/styles/hn-light.user.js
+// @downloadURL  https://github.com/MohamedElashri/HN/raw/main/styles/hn-light.user.js
 // ==/UserScript==
 
 (function() {
