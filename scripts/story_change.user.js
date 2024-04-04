@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        Story Rank Changes for HN
-// @namespace   https://github.com/MohamedElashri/HN
+// @namespacehttps://github.com/MohamedElashri/HN
 // @version     0.0.1
 // @description Enhance Hacker News experience with real-time story rank changes and new story icon for quick, visual navigation
 // @author      melashri
@@ -12,6 +12,7 @@
 // @license     MIT
 // @updateURL    https://github.com/MohamedElashri/HN/raw/main/scripts/story_change.user.js
 // @downloadURL  https://github.com/MohamedElashri/HN/raw/main/scripts/story_change.user.js
+
 // ==/UserScript==
 
 (function() {
@@ -43,7 +44,7 @@
            }
        } else {
            // the story is new, use SVG icon instead of text
-           svgContainer.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 0L10.6667 5.33333H16L12 8.66667L14.6667 14L8 10.6667L1.33333 14L4 8.66667L0 5.33333H5.33333L8 0Z" fill="#7d3c98"/></svg>'; 
+           svgContainer.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 0L10.6667 5.33333H16L12 8.66667L14.6667 14L8 10.6667L1.33333 14L4 8.66667L0 5.33333H5.33333L8 0Z" fill="#7d3c98"/></svg>';
            svgContainer.style.marginRight = '5px';
            title.parentNode.insertBefore(svgContainer, title);
        }
