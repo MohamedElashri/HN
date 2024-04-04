@@ -22,7 +22,7 @@
                 let numComments = commentMatch[0];
                 let plural = numComments > 1 ? "s" : "";
 
-                commentLinks[i].innerHTML = `<span style="font-weight: bold; color: #f1fa8c;">${numComments}</span> comment${plural}`;
+                commentLinks[i].innerHTML = `<span style="font-weight: bold; color: #c40707;">${numComments}</span> comment${plural}`;
             }
         }
     }
