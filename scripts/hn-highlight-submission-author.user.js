@@ -5,7 +5,8 @@
 // @description  Highlights the submission author on Hacker News
 // @author       melashri
 // @match        https://news.ycombinator.com/*
-// @// ==/UserScript==
+// @license     MIT
+// ==/UserScript==
 
 (function() {
     'use strict';

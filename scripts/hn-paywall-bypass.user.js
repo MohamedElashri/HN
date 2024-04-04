@@ -6,6 +6,7 @@
 // @author       melashri
 // @match        https://news.ycombinator.com/*
 // @grant        none
+// @license     MIT
 // ==/UserScript==
 
 (function() {
