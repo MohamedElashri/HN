@@ -11,6 +11,39 @@
 (function() {
     'use strict';
 
+    // ---------------------------
+    // Lists
+    // ---------------------------
+    const topics = [
+        "Trump", "Governments", "Israel", "Biden", "Congress", "Sex", "Housing" ,
+        "Court", "Israeli","Elite", "Musk", "Military", "Iran", "Iranian", "Boeing",
+        "artist", "artists", "emacs", "twitter", "antisemitism", "islam", "ukraine",
+        "north korea", "Tesla", "SpaceX", "DoD", "pantagon", "Matlab", "union", "unions",
+        "cats", "cat", "facebook", "tiktok", "snapchat","Java", "government","veto",
+    ];
+
+    const sites = [
+        "foxnews.com", "bbc.co.uk", "bbc.com", "cnn.com", "economist.com","nbcnews.com",
+    ];
+
+    const users = [
+        // **sanity**
+        "rendall", "usehackernews", "rewmie", "kaba0", "Natsu",
+        "dijit", "Aloisius", "josephcsible", "iddan", "deadbabe",
+        "Ferret7446", "johnwheeler",
+        // **Islamphopia**
+        "YZF", "throwaway5959", "rottencupcakes", "riku_iki",
+        "llimos", "physicles", "coryrc", "motoxpro", "hirako2000",
+        "richardfeynman", "vasilipupkin", "tptacek", "wonderwonder", "ericfrazier",
+        "weatherlite", "rrook", "wslh", "rythmshifter", "GuB-42", "elromulous", "AnimalMuppet",
+        "prmph", "readthenotes1","gruez", "me_me_me", "prmph", "slibhb", "xpl", "ekianjo",
+        "tekknik", "dijit", "sheff_ne", "Always_Anon", "llm_trw", "samsin", "numpad0", "screye",
+        "brink", "mschuster91", "GardenLetter27","xdennis","JumpCrisscross","tguvot","rickydroll",
+        "megaman821", "RoyTyrell", "bryanlarsen", "myth_drannon", "ftyhbhyjnjk", "nsguy",
+        "pvg","candiodari",
+
+    ];
+
     // Helper function to determine if a row is a spacer
     function isSpacerRow(row) {
         // Implement logic to determine if a row is used as a spacer
