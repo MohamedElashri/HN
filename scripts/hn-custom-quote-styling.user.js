@@ -6,6 +6,9 @@
 // @author       melashri
 // @match        https://news.ycombinator.com/*
 // @grant        none
+// @updateURL    https://github.com/MohamedElashri/HN/raw/main/scripts/hn-custom-quote-styling.user.js
+// @downloadURL  https://github.com/MohamedElashri/HN/raw/main/scripts/hn-custom-quote-styling.user.js
+
 // ==/UserScript==
 
 (function() {

@@ -7,6 +7,8 @@
 // @match        https://news.ycombinator.com/*
 // @grant        none
 // @license     MIT
+// @updateURL    https://github.com/MohamedElashri/HN/raw/main/scripts/hn-paywall-bypass.user.js
+// @downloadURL  https://github.com/MohamedElashri/HN/raw/main/scripts/hn-paywall-bypass.user.js
 // ==/UserScript==
 
 (function() {

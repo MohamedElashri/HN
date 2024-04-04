@@ -4,8 +4,11 @@
 // @version      1.0
 // @description  Highlights the submission author on Hacker News
 // @author       melashri
+// @grant        GM_addStyle
 // @match        https://news.ycombinator.com/*
 // @license     MIT
+// @updateURL    https://github.com/MohamedElashri/HN/raw/main/scripts/hn-highlight-submission-author.user.js
+// @downloadURL  https://github.com/MohamedElashri/HN/raw/main/scripts/hn-highlight-submission-author.user.js
 // ==/UserScript==
 
 (function() {

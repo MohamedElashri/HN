@@ -7,6 +7,8 @@
 // @match        https://news.ycombinator.com/*
 // @grant        none
 // @license     MIT
+// @updateURL    https://github.com/MohamedElashri/HN/raw/main/scripts/hn-toggle-comment-visibility.user.js
+// @downloadURL  https://github.com/MohamedElashri/HN/raw/main/scripts/hn-toggle-comment-visibility.user.js
 // ==/UserScript==
 
 (function() {

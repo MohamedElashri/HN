@@ -6,6 +6,8 @@
 // @author       melashri
 // @match        https://news.ycombinator.com/*
 // @grant        no// ==/UserScript==
+// @updateURL    https://github.com/MohamedElashri/HN/raw/main/scripts/hn-vote-arrow-click-event.user.js
+// @downloadURL  https://github.com/MohamedElashri/HN/raw/main/scripts/hn-vote-arrow-click-event.user.js
 // ==/UserScript==
 
 (function() {

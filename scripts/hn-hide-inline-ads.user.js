@@ -6,6 +6,8 @@
 // @author       melashri
 // @match        https://news.ycombinator.com/*
 // @grant        none
+// @updateURL    https://github.com/MohamedElashri/HN/raw/main/scripts/hn-hide-inline-ads.user.js
+// @downloadURL  https://github.com/MohamedElashri/HN/raw/main/scripts/hn-hide-inline-ads.user.js
 // ==/UserScript==
 
 (function() {

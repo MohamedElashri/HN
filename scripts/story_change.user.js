@@ -10,6 +10,8 @@
 // @match       https://news.ycombinator.com/?p=*
 // @grant       none
 // @license     MIT
+// @updateURL    https://github.com/MohamedElashri/HN/raw/main/scripts/story_change.user.js
+// @downloadURL  https://github.com/MohamedElashri/HN/raw/main/scripts/story_change.user.js
 // ==/UserScript==
 
 (function() {
