@@ -13,7 +13,7 @@
 (function() {
     'use strict';
 
-    GM_addStyle(`
+    const css = `
         /* Global Styles */
         body {
             margin: 0 !important;
@@ -41,11 +41,11 @@
             color: #c40707 !important; /* Red text color for table data */
         }
         /* Dead Links Styling */
-        .dead a:link:hover, .dead a:visited {
+        .dead a:link, .dead a:visited {
             background: #0d0d0d !important; /* Dark background for dead links */
             color: #fff !important; /* White text color for contrast */
         }
-        .dead a:link:hover::before {
+        .dead a:link::before {
             content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAOCAMAAAAR8Wy4AAAATlBMVEX///9NTU38/PxjY2OVlZX5+fny8vLDw8Nzc3P29vbh4eHLy8uysrKmpqaKioqDg4Pm5uZVVVXV1dW8vLyPj495eXlra2ve3t7b29taWlqwMuwSAAAAk0lEQVQI1z2OVw7EMAhEsXHBvcROuf9FlzjZzAcSTwN6cEenXYg9Sngjp1jJfxDEmxNgtSI+O24g3Q0sPYCsNAxUrRkzUcbh+tDQGx3KyKKgJr+3E7oqNEtBHDNjUR3AGbM1EaO4tlMuK57cbSOYz8zbampIx6MdbEFrvVcBsw0ajktEqRNNtuI/nj0S+xm37pPSP4ZHBjEu/RG/AAAAAElFTkSuQmCC) !important;
             background: #fff !important;
             color: #fff !important;
@@ -53,7 +53,7 @@
             margin-right: 3px !important;
             border: 1px solid #000 !important;
         }
-        .dead a:link:hover::after {
+        .dead a:link::after {
             content: "[DEAD LINK]";
             background: #939090 !important;
             color: #fff !important;
@@ -227,5 +227,14 @@
         .votearrow:after {
             content: "⇧";
         }
-    `);
+    `;
+
+    if (typeof GM_addStyle !== 'undefined') {
+        GM_addStyle(css);
+    } else {
+        const style = document.createElement('style');
+        style.type = 'text/css';
+        style.innerHTML = css;
+        document.head.appendChild(style);
+    }
 })();
