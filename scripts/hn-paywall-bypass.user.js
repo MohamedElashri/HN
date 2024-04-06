@@ -207,32 +207,34 @@
 
     // Function to bypass paywalls and add redirection
     function passTheButter(node, paywalls, projects) {
-        // Check if node.nextSibling is an element and has querySelector
         if (node.nextSibling && node.nextSibling.nodeType === Node.ELEMENT_NODE) {
             let meta = node.nextSibling.querySelector(".subtext");
-            // Additional check for meta existence
             if (meta) {
                 let link = node.querySelector(".titleline a").href;
                 let domain = node.querySelector("span.sitestr") ? node.querySelector("span.sitestr").innerText : "";
                 let paywall = paywalls.find((paywall) => domain.includes(paywall));
 
                 if (paywall) {
-                    let paywallSpan = document.createElement("span");
-                    paywallSpan.appendChild(document.createTextNode(" | 💰"));
+                    // Check if the redirection links have already been added
+                    if (!meta.querySelector(".paywall-span")) {
+                        let paywallSpan = document.createElement("span");
+                        paywallSpan.classList.add("paywall-span"); // Add a class for identification
+                        paywallSpan.appendChild(document.createTextNode(" | 💰"));
 
-                    projects.forEach((project) => {
-                        const anchor = document.createElement("a");
-                        const line = document.createElement("span");
-                        line.textContent = " | ";
-                        anchor.setAttribute("href", `${project.url}${link}`);
-                        anchor.setAttribute("target", "_blank");
-                        anchor.setAttribute("rel", "noopener noreferrer");
-                        anchor.textContent = project.name;
-                        paywallSpan.appendChild(line);
-                        paywallSpan.appendChild(anchor);
-                    });
+                        projects.forEach((project) => {
+                            const anchor = document.createElement("a");
+                            const line = document.createElement("span");
+                            line.textContent = " | ";
+                            anchor.setAttribute("href", `${project.url}${link}`);
+                            anchor.setAttribute("target", "_blank");
+                            anchor.setAttribute("rel", "noopener noreferrer");
+                            anchor.textContent = project.name;
+                            paywallSpan.appendChild(line);
+                            paywallSpan.appendChild(anchor);
+                        });
 
-                    meta.appendChild(paywallSpan);
+                        meta.appendChild(paywallSpan);
+                    }
                 }
             } else {
                 console.log("Meta element not found for node: ", node);
