@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hacker News - Hide Elements by Text
 // @namespace    https://github.com/MohamedElashri/HN
-// @version      1.1
+// @version      1.2
 // @description  Hides elements on Hacker News based on specific topics, sites, and users
 // @author       melashri
 // @match        https://news.ycombinator.com/*
@@ -43,7 +43,10 @@
         "brink", "mschuster91", "GardenLetter27","xdennis","JumpCrisscross","tguvot","rickydroll",
         "megaman821", "RoyTyrell", "bryanlarsen", "myth_drannon", "ftyhbhyjnjk", "nsguy",
         "pvg","candiodari","NovemberWhiskey","machina_ex_deus","snird","shepherdjerred","bawolff",
-        "elfbargpt","kjkjadksj",
+        "elfbargpt","kjkjadksj","ido","	zeroonetwothree","mhb","collegeburner","bamboozled","speedylight",
+        "trimethylpurine","wkat4242","burrish","mikrotikker","cooloo","workaccount2","shrimp_emoji","shitlord",
+        "nolongerthere","dralley","invalidname","edanm","Protostome","jolj","noduerme","dotanochen","inemesitaffia",
+        "exe34","candiodari",
 
     ];
 
