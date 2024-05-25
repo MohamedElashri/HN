@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hacker News - Hide Elements by Text
 // @namespace    https://github.com/MohamedElashri/HN
-// @version      1.2
+// @version      1.3
 // @description  Hides elements on Hacker News based on specific topics, sites, and users
 // @author       melashri
 // @match        https://news.ycombinator.com/*
@@ -18,10 +18,11 @@
     // ---------------------------
     const topics = [
         "Trump", "Governments", "Israel", "Biden", "Congress", "Sex", "Housing" ,
-        "Court", "Israeli","Elite", "Musk", "Military", "Iran", "Iranian", "Boeing",
-        "artist", "artists", "emacs", "twitter", "antisemitism", "islam", "ukraine",
+        "Court","Courts","Israeli","Elite", "Musk", "Military", "Iran", "Iranian", "Boeing",
+        "artist", "artists", "emacs", "twitter", "antisemitism", "antisemite", "ukraine",
         "north korea", "Tesla", "SpaceX", "DoD", "pantagon", "Matlab", "union", "unions",
         "cats", "cat", "facebook", "tiktok", "snapchat","Java", "government","veto",
+        "germany","Fedral","twitter",
     ];
 
     const sites = [
@@ -30,7 +31,7 @@
 
     const users = [
         // **sanity**
-        "rendall", "usehackernews", "rewmie", "kaba0", "Natsu",
+        "usehackernews", "rewmie", "kaba0", "Natsu",
         "dijit", "Aloisius", "josephcsible", "iddan", "deadbabe",
         "Ferret7446", "johnwheeler",
         // **Islamphopia**
@@ -46,7 +47,7 @@
         "elfbargpt","kjkjadksj","ido","	zeroonetwothree","mhb","collegeburner","bamboozled","speedylight",
         "trimethylpurine","wkat4242","burrish","mikrotikker","cooloo","workaccount2","shrimp_emoji","shitlord",
         "nolongerthere","dralley","invalidname","edanm","Protostome","jolj","noduerme","dotanochen","inemesitaffia",
-        "exe34","candiodari",
+        "exe34","candiodari","dlubarov","genman","ourmandave","dakom","rendall"
 
     ];
 
