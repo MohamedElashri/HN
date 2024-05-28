@@ -47,7 +47,7 @@
         "elfbargpt","kjkjadksj","ido","	zeroonetwothree","mhb","collegeburner","bamboozled","speedylight",
         "trimethylpurine","wkat4242","burrish","mikrotikker","cooloo","workaccount2","shrimp_emoji","shitlord",
         "nolongerthere","dralley","invalidname","edanm","Protostome","jolj","noduerme","dotanochen","inemesitaffia",
-        "exe34","candiodari","dlubarov","genman","ourmandave","dakom","rendall"
+        "exe34","candiodari","dlubarov","genman","ourmandave","dakom","rendall", "philwelch", 
 
     ];
 
