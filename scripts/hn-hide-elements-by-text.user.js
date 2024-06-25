@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hacker News - Hide Elements by Text
 // @namespace    https://github.com/MohamedElashri/HN
-// @version      1.4
+// @version      1.5
 // @description  Hides elements on Hacker News based on specific topics, sites, and users
 // @author       melashri
 // @match        https://news.ycombinator.com/*
@@ -33,7 +33,7 @@
         // **sanity**
         "usehackernews", "rewmie", "kaba0", "Natsu",
         "dijit", "Aloisius", "josephcsible", "iddan", "deadbabe",
-        "Ferret7446", "johnwheeler",
+        "Ferret7446", "johnwheeler","zeroonetwothree",
         // **Islamphopia**
         "YZF", "throwaway5959", "rottencupcakes", "riku_iki",
         "llimos", "physicles", "coryrc", "motoxpro", "hirako2000",
@@ -47,7 +47,14 @@
         "elfbargpt","kjkjadksj","ido","	zeroonetwothree","mhb","collegeburner","bamboozled","speedylight",
         "trimethylpurine","wkat4242","burrish","mikrotikker","cooloo","workaccount2","shrimp_emoji","shitlord",
         "nolongerthere","dralley","invalidname","edanm","Protostome","jolj","noduerme","dotanochen","inemesitaffia",
-        "exe34","candiodari","dlubarov","genman","ourmandave","dakom","rendall", "philwelch", "nsguy", "blackeyeblitzar"
+        "exe34","candiodari","dlubarov","genman","ourmandave","dakom","rendall", "philwelch", "nsguy",
+        "blackeyeblitzar", "romwell", "golergka", "JanSt", "JanSt", "ChumpGPT", "EasyMark","qntmfred","stewx",
+        "addicted","shermand89","WereAllMadHere","js212","halflife","dmbche","oldpersonintx","desi_ninja",
+        "halflife","davesque","leoh","anonfordays","eynsham","firesteelrain","tharne","dingnuts","Log_out_",
+        "jlawson","thriftwy","dotancohen","daninus14","surfingdino","BunsanSpace","aen1","blackhawkC17","Pidaymou",
+        "emchammer","boxed","inglor_cz","dheera","infotainment","angra_mainyu","ActorNightly","Shekelphile",
+        "tomohawk","racional","Ajay-p","klipt","sshine","BlackJack",
+        
         
 
     ];
