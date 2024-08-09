@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hacker News - Hide Inline Ads
 // @namespace    https://github.com/MohamedElashri/HN
-// @version      1.1
+// @version      1.2
 // @description  Hides inline ads on Hacker News
 // @author       melashri
 // @match        https://news.ycombinator.com/*
@@ -32,7 +32,7 @@
 
                 // Check and hide the additional related element, which could be spacing or further details
                 const possibleAdDetailsRow = subtextRow.nextSibling;
-                if (possibleAdDetailsRow) {
+                if (possibleAdDetailsRow && possibleAdDetailsRow.style) {
                     possibleAdDetailsRow.style.display = "none";
                 }
             }
