@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Hacker News - Hide Elements by Text
+// @name         Hacker News - Hide Elements by Text with Warnings
 // @namespace    https://github.com/MohamedElashri/HN
-// @version      1.5
-// @description  Hides elements on Hacker News based on specific topics, sites, and users
+// @version      1.6
+// @description  Enhanced hiding of elements on Hacker News based on specific topics, sites, and users with warning messages for direct links.
 // @author       melashri
 // @match        https://news.ycombinator.com/*
 // @grant        none
@@ -13,11 +13,8 @@
 (function() {
     'use strict';
 
-    // ---------------------------
-    // Lists
-    // ---------------------------
     const topics = [
-        "Trump", "Governments", "Israel", "Biden", "Congress", "Sex", "Housing" ,
+        "Trump", "Governments", "Israel", "Biden", "Congress", "Sex", "Housing",
         "Court","Courts","Israeli","Elite", "Musk", "Military", "Iran", "Iranian", "Boeing",
         "artist", "artists", "emacs", "twitter", "antisemitism", "antisemite", "ukraine",
         "north korea", "Tesla", "SpaceX", "DoD", "pantagon", "Matlab", "union", "unions",
@@ -34,7 +31,7 @@
         "usehackernews", "rewmie", "kaba0", "Natsu",
         "dijit", "Aloisius", "josephcsible", "iddan", "deadbabe",
         "Ferret7446", "johnwheeler","zeroonetwothree",
-        // **Islamphopia**
+        // **Islamphobia**
         "YZF", "throwaway5959", "rottencupcakes", "riku_iki",
         "llimos", "physicles", "coryrc", "motoxpro", "hirako2000",
         "richardfeynman", "vasilipupkin", "tptacek", "wonderwonder", "ericfrazier",
@@ -54,71 +51,106 @@
         "jlawson","thriftwy","dotancohen","daninus14","surfingdino","BunsanSpace","aen1","blackhawkC17","Pidaymou",
         "emchammer","boxed","inglor_cz","dheera","infotainment","angra_mainyu","ActorNightly","Shekelphile",
         "tomohawk","racional","Ajay-p","klipt","sshine","BlackJack",
-        
-        
-
     ];
 
-    // Helper function to determine if a row is a spacer
-    function isSpacerRow(row) {
-        // Implement logic to determine if a row is used as a spacer
-        return row.style.height === "5px"; // To be fine tuned
+    function isListPage() {
+        return /news|newest|best|ask|show|front|jobs/.test(window.location.pathname);
     }
 
-    // Helper function to determine if a row is a metadata row
-    function isMetadataRow(row) {
-        // Implement logic to determine if a row contains metadata
-        // This can be based on the presence of certain classes or specific text
-        return row.querySelector('.subtext') !== null;
+    function isUserPage() {
+        return /user\?id=/.test(window.location.href);
     }
 
-    // Function to hide elements containing specific text
-    function hideElementsByText(selector, text, includeParent = false) {
+    function isDirectLink() {
+        return /item\?id=\d+$/.test(window.location.href);
+    }
+
+    function getUserFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('id');
+    }
+
+    function showUserWarning(user) {
+        const warningMessage = `Warning: You are viewing the profile of a blocked user: ${user}`;
+        const userTable = document.querySelector('table');
+
+        if (userTable) {
+            const userRow = userTable.querySelector('tr');
+            if (userRow) {
+                const userNameCell = userRow.querySelector('td');
+                if (userNameCell) {
+                    userNameCell.innerHTML += ` <span style="color: red; font-weight: bold;">(${warningMessage})</span>`;
+                }
+            }
+        }
+    }
+
+    function hideElementAndAdjust(el) {
+        // Hide the element and adjust the surrounding space
+        el.style.display = 'none';
+    }
+
+    function hideElements(selector, text) {
         const elements = document.querySelectorAll(selector);
-        const lowerCaseText = text.toLowerCase(); // Convert the text to lowercase
         elements.forEach(el => {
-            if (el.textContent.toLowerCase().includes(lowerCaseText)) {
-                let elementToHide = includeParent ? el.closest('tr') : el;
-                if (elementToHide) {
-                    // Hide the parent <tr>
-                    let parentRow = elementToHide.closest('tr');
-                    if (parentRow) {
-                        parentRow.style.display = 'none';
-
-                        // Hide the next sibling if it's a spacer or metadata row
-                        let nextSiblingRow = parentRow.nextElementSibling;
-                        if (nextSiblingRow && nextSiblingRow.tagName === "TR") {
-                            if (isSpacerRow(nextSiblingRow) || isMetadataRow(nextSiblingRow)) {
-                                nextSiblingRow.style.display = 'none';
-                            }
-                        }
-
-                        // Additionally, check for and hide a previous spacer if present
-                        let previousSiblingRow = parentRow.previousElementSibling;
-                        if (previousSiblingRow && previousSiblingRow.tagName === "TR") {
-                            if (isSpacerRow(previousSiblingRow)) {
-                                previousSiblingRow.style.display = 'none';
-                            }
-                        }
-                    }
+            if (el.textContent.toLowerCase().includes(text.toLowerCase())) {
+                const row = el.closest('tr');
+                if (row) {
+                    hideElementAndAdjust(row.nextElementSibling); // Hide metadata
+                    hideElementAndAdjust(row); // Hide main element
                 }
             }
         });
     }
 
-    // Function to apply filters based on topics, sites, and users
-    function applyFilters() {
-        topics.forEach(topic => {
-            hideElementsByText('.title a', topic, true);
-        });
-        sites.forEach(site => {
-            hideElementsByText('.title .sitebit', site, true);
-        });
-        users.forEach(user => {
-            hideElementsByText('.comhead > a[href^="user?"]', user, true);
+    function modifyWithWarning(selector, text, message) {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(el => {
+            if (el.textContent.toLowerCase().includes(text.toLowerCase())) {
+                el.insertAdjacentHTML('afterend', `<div style="color: red; font-weight: bold;">Warning: ${message}</div>`);
+            }
         });
     }
 
-    // Run the filter function on page load
+    function blockCommentContent(selector, text, reason) {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(el => {
+            if (el.textContent.toLowerCase().includes(text.toLowerCase())) {
+                el.innerHTML = `<div style="color: red; font-weight: bold;">Comment blocked due to: ${reason}</div>`;
+            }
+        });
+    }
+
+    function applyFilters() {
+        if (isListPage()) {
+            topics.forEach(topic => hideElements('.title a', topic)); // Hide topics only in titles
+            sites.forEach(site => hideElements('.title .sitebit', site));
+            users.forEach(user => hideElements('.comhead > a[href^="user?"]', user));
+        } else if (isDirectLink()) {
+            topics.forEach(topic => {
+                modifyWithWarning('.title a', topic, `This post relates to a blocked topic: ${topic}`);
+            });
+            sites.forEach(site => {
+                modifyWithWarning('.title .sitebit', site, `This post is from a blocked site: ${site}`);
+            });
+            users.forEach(user => {
+                modifyWithWarning('.comhead > a[href^="user?"]', user, `This comment is from a blocked user: ${user}`);
+            });
+        }
+
+        // Apply user blocking across all contexts in comments
+        users.forEach(user => {
+            blockCommentContent('.comhead > a[href^="user?"]', user, `Blocked user: ${user}`);
+        });
+
+        // Check for user profile pages
+        if (isUserPage()) {
+            const user = getUserFromUrl();
+            if (users.includes(user)) {
+                showUserWarning(user);
+            }
+        }
+    }
+
     applyFilters();
 })();
