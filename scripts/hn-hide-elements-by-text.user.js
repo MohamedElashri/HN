@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hacker News - Hide Elements by Text with Warnings
 // @namespace    https://github.com/MohamedElashri/HN
-// @version      1.6.1
+// @version      1.6.2
 // @description  Enhanced hiding of elements on Hacker News based on specific topics, sites, and users with warning messages for direct links.
 // @author       melashri
 // @match        https://news.ycombinator.com/*
@@ -94,8 +94,9 @@
 
     function hideElements(selector, text) {
         const elements = document.querySelectorAll(selector);
+        const regex = new RegExp(`\\b${text}\\b`, 'i'); // Create a regex with word boundaries
         elements.forEach(el => {
-            if (el.textContent.toLowerCase().includes(text.toLowerCase())) {
+            if (regex.test(el.textContent)) {
                 const row = el.closest('tr');
                 if (row) {
                     hideElementAndAdjust(row.nextElementSibling); // Hide metadata
@@ -107,8 +108,9 @@
 
     function modifyWithWarning(selector, text, message) {
         const elements = document.querySelectorAll(selector);
+        const regex = new RegExp(`\\b${text}\\b`, 'i'); // Create a regex with word boundaries
         elements.forEach(el => {
-            if (el.textContent.toLowerCase().includes(text.toLowerCase())) {
+            if (regex.test(el.textContent)) {
                 el.insertAdjacentHTML('afterend', `<div style="color: red; font-weight: bold;">Warning: ${message}</div>`);
             }
         });
@@ -116,8 +118,9 @@
 
     function blockCommentContent(selector, text, reason) {
         const elements = document.querySelectorAll(selector);
+        const regex = new RegExp(`\\b${text}\\b`, 'i'); // Create a regex with word boundaries
         elements.forEach(el => {
-            if (el.textContent.toLowerCase().includes(text.toLowerCase())) {
+            if (regex.test(el.textContent)) {
                 el.innerHTML = `<div style="color: red; font-weight: bold;">Comment blocked due to: ${reason}</div>`;
             }
         });
