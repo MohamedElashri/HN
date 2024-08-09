@@ -50,7 +50,9 @@
         "halflife","davesque","leoh","anonfordays","eynsham","firesteelrain","tharne","dingnuts","Log_out_",
         "jlawson","thriftwy","dotancohen","daninus14","surfingdino","BunsanSpace","aen1","blackhawkC17","Pidaymou",
         "emchammer","boxed","inglor_cz","dheera","infotainment","angra_mainyu","ActorNightly","Shekelphile",
-        "tomohawk","racional","Ajay-p","klipt","sshine","BlackJack",
+        "tomohawk","racional","Ajay-p","klipt","sshine","BlackJack","indoordin0saur","dark-star","sensanaty",
+        "kypro", "saltymug76",
+        
     ];
 
     function isListPage() {
