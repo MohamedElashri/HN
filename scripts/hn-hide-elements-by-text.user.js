@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hacker News - Hide Elements by Text with Warnings
 // @namespace    https://github.com/MohamedElashri/HN
-// @version      1.6.3
+// @version      1.6.4
 // @description  Enhanced hiding of elements on Hacker News based on specific topics, sites, and users with warning messages for direct links.
 // @author       melashri
 // @match        https://news.ycombinator.com/*
@@ -19,7 +19,7 @@
         "artist", "artists", "emacs", "twitter", "antisemitism", "antisemite", "ukraine",
         "north korea", "Tesla", "SpaceX", "DoD", "pantagon", "Matlab", "unions",
         "cats", "cat", "facebook", "tiktok", "snapchat","Java", "government","veto",
-        "germany","Fedral","musk",
+        "germany","Fedral","musk", "nunobrito", "avmich", 
     ];
 
     const sites = [
