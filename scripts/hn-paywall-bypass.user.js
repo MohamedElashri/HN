@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hacker News - Paywall Bypass
 // @namespace    https://github.com/MohamedElashri/HN
-// @version      1.0
+// @version      1.1
 // @description  Bypasses paywalls and adds redirection links for certain sites on Hacker News
 // @author       melashri
 // @match        https://news.ycombinator.com/*
@@ -196,8 +196,8 @@
             url: "https://archive.is/",
         },
         {
-            name: "12ft.io",
-            url: "https://12ft.io/",
+            name: "13ft.io",
+            url: "https://proxy.melashri.eu.org/",
         },
         {
             name: "Archive.org",
