@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hacker News - Hide Elements by Text with Warnings
 // @namespace    https://github.com/MohamedElashri/HN
-// @version      1.6.4
+// @version      1.6.5
 // @description  Enhanced hiding of elements on Hacker News based on specific topics, sites, and users with warning messages for direct links.
 // @author       melashri
 // @match        https://news.ycombinator.com/*
@@ -51,7 +51,9 @@
         "jlawson","thriftwy","dotancohen","daninus14","surfingdino","BunsanSpace","aen1","blackhawkC17","Pidaymou",
         "emchammer","boxed","inglor_cz","dheera","infotainment","angra_mainyu","ActorNightly","Shekelphile",
         "tomohawk","racional","Ajay-p","klipt","sshine","BlackJack","indoordin0saur","dark-star","sensanaty",
-        "kypro", "saltymug76",
+        "kypro", "saltymug76","bityard","blackeyeblitzar","sensanary","dark-star","indoordin0saur","UIUC_06","EugeneOZ",
+        "dns_snek","rayiner","solumunus","weatherlite","libretine","graemep","anovikov","Trasmatta","rramadass","fsckboy",
+        "renewiltord","gryzzly",
 
     ];
 
