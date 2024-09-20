@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name         Hacker News - Hide Elements by Text with Warnings
 // @namespace    https://github.com/MohamedElashri/HN
-// @version      1.6.5
-// @description  Enhanced hiding of elements on Hacker News based on specific topics, sites, and users with warning messages for direct links.
+// @version      1.7.0
+// @description  Enhanced hiding of elements on Hacker News based on specific topics, sites, and users with warning messages.
 // @author       melashri
 // @match        https://news.ycombinator.com/*
-// @grant        none
+// @grant        GM.xmlHttpRequest
+// @connect      github.com
 // @updateURL    https://github.com/MohamedElashri/HN/raw/main/scripts/hn-hide-elements-by-text.user.js
 // @downloadURL  https://github.com/MohamedElashri/HN/raw/main/scripts/hn-hide-elements-by-text.user.js
 // ==/UserScript==
@@ -13,49 +14,34 @@
 (function() {
     'use strict';
 
-    const topics = [
-        "Trump", "Governments", "Israel", "Biden", "Congress", "Sex", "Housing",
-        "Court","Courts","Israeli", "israel", "Elite", "Musk", "Military", "Iran", "Iranian", "Boeing",
-        "artist", "artists", "emacs", "twitter", "antisemitism", "antisemite", "ukraine",
-        "north korea", "Tesla", "SpaceX", "DoD", "pantagon", "Matlab", "unions",
-        "cats", "cat", "facebook", "tiktok", "snapchat","Java", "government","veto",
-        "germany","Fedral","musk", "nunobrito", "avmich", 
-    ];
+    const CONFIG_URL = 'https://github.com/MohamedElashri/HN/raw/main/scripts/utils/lists.json';
 
-    const sites = [
-        "foxnews.com", "bbc.co.uk", "bbc.com", "cnn.com", "economist.com","nbcnews.com",
-    ];
-
-    const users = [
-        // **sanity**
-        "usehackernews", "rewmie", "kaba0", "Natsu",
-        "dijit", "Aloisius", "josephcsible", "iddan", "deadbabe",
-        "Ferret7446", "johnwheeler","zeroonetwothree",
-        // **Islamphobia**
-        "YZF", "throwaway5959", "rottencupcakes", "riku_iki",
-        "llimos", "physicles", "coryrc", "motoxpro", "hirako2000",
-        "richardfeynman", "vasilipupkin", "tptacek", "wonderwonder", "ericfrazier",
-        "weatherlite", "rrook", "wslh", "rythmshifter", "GuB-42", "elromulous", "AnimalMuppet",
-        "prmph", "readthenotes1","gruez", "me_me_me", "prmph", "slibhb", "xpl", "ekianjo",
-        "tekknik", "dijit", "sheff_ne", "Always_Anon", "llm_trw", "samsin", "numpad0", "screye",
-        "brink", "mschuster91", "GardenLetter27","xdennis","JumpCrisscross","tguvot","rickydroll",
-        "megaman821", "RoyTyrell", "bryanlarsen", "myth_drannon", "ftyhbhyjnjk", "nsguy",
-        "pvg","candiodari","NovemberWhiskey","machina_ex_deus","snird","shepherdjerred","bawolff",
-        "elfbargpt","kjkjadksj","ido","	zeroonetwothree","mhb","collegeburner","bamboozled","speedylight",
-        "trimethylpurine","wkat4242","burrish","mikrotikker","cooloo","workaccount2","shrimp_emoji","shitlord",
-        "nolongerthere","dralley","invalidname","edanm","Protostome","jolj","noduerme","dotanochen","inemesitaffia",
-        "exe34","candiodari","dlubarov","genman","ourmandave","dakom","rendall", "philwelch", "nsguy",
-        "blackeyeblitzar", "romwell", "golergka", "JanSt", "JanSt", "ChumpGPT", "EasyMark","qntmfred","stewx",
-        "addicted","shermand89","WereAllMadHere","js212","halflife","dmbche","oldpersonintx","desi_ninja",
-        "halflife","davesque","leoh","anonfordays","eynsham","firesteelrain","tharne","dingnuts","Log_out_",
-        "jlawson","thriftwy","dotancohen","daninus14","surfingdino","BunsanSpace","aen1","blackhawkC17","Pidaymou",
-        "emchammer","boxed","inglor_cz","dheera","infotainment","angra_mainyu","ActorNightly","Shekelphile",
-        "tomohawk","racional","Ajay-p","klipt","sshine","BlackJack","indoordin0saur","dark-star","sensanaty",
-        "kypro", "saltymug76","bityard","blackeyeblitzar","sensanary","dark-star","indoordin0saur","UIUC_06","EugeneOZ",
-        "dns_snek","rayiner","solumunus","weatherlite","libretine","graemep","anovikov","Trasmatta","rramadass","fsckboy",
-        "renewiltord","gryzzly",
-
-    ];
+    async function fetchConfig() {
+        return new Promise((resolve, reject) => {
+            GM.xmlHttpRequest({
+                method: 'GET',
+                url: CONFIG_URL,
+                onload: function(response) {
+                    if (response.status === 200) {
+                        //console.log('Raw response:', response.responseText);
+                        try {
+                            const config = JSON.parse(response.responseText);
+                            resolve(config);
+                        } catch (error) {
+                            console.error('JSON parse error:', error);
+                            reject(new Error('Failed to parse configuration JSON'));
+                        }
+                    } else {
+                        reject(new Error(`Failed to fetch configuration. Status: ${response.status}`));
+                    }
+                },
+                onerror: function(error) {
+                    console.error('Network error:', error);
+                    reject(new Error('Network error while fetching configuration'));
+                }
+            });
+        });
+    }
 
     function isListPage() {
         return /news|newest|best|ask|show|front|jobs/.test(window.location.pathname);
@@ -90,7 +76,6 @@
     }
 
     function hideElementAndAdjust(el) {
-        // Hide the element and adjust the surrounding space
         el.style.display = 'none';
     }
 
@@ -99,18 +84,17 @@
         elements.forEach(el => {
             let textContent = el.textContent;
             if (excludeURLs) {
-                // Attempt to exclude URL if present in the element
                 const match = textContent.match(/^(.*)\s+\(\w+:\/\/\S+\)$/);
                 if (match) {
                     textContent = match[1];
                 }
             }
-            const regex = new RegExp(`\\b${text}\\b`, 'i'); // Create a regex with word boundaries
+            const regex = new RegExp(`\\b${text}\\b`, 'i');
             if (regex.test(textContent)) {
                 const row = el.closest('tr');
                 if (row) {
-                    hideElementAndAdjust(row.nextElementSibling); // Hide metadata
-                    hideElementAndAdjust(row); // Hide main element
+                    hideElementAndAdjust(row.nextElementSibling);
+                    hideElementAndAdjust(row);
                 }
             }
         });
@@ -121,58 +105,97 @@
         const regex = new RegExp(`\\b${text}\\b`, 'i');
         elements.forEach(el => {
             if (regex.test(el.textContent)) {
-                // Check if a warning has already been added
                 if (!el.dataset.warningAdded) {
                     el.insertAdjacentHTML('afterend', `<div style="color: red; font-weight: bold;">Warning: ${message}</div>`);
-                    el.dataset.warningAdded = true; // Mark this element as having a warning added
+                    el.dataset.warningAdded = true;
                 }
             }
         });
     }
 
     function blockCommentContent(selector, text) {
+        // console.log(`Searching for user: ${text}`);
         const elements = document.querySelectorAll(selector);
         const regex = new RegExp(`\\b${text}\\b`, 'i');
         elements.forEach(el => {
             if (regex.test(el.textContent)) {
-                // Update the header to include a concise warning message
+                // console.log(`Found user ${text} in element:`, el);
                 el.innerHTML = `<span style="color: red; font-weight: bold;">Warning: Blocked user <${text}></span>`;
 
-                // Find the comment content element and replace its content with a generic message
-                const commentBody = el.closest('.comtr').querySelector('.comment');
-                if (commentBody) {
-                    commentBody.innerHTML = '<div style="color: red; font-weight: bold;">You don\'t want to read this comment content.</div>';
+                // Try to find the closest parent with class 'comtr' or 'athing'
+                const parentComment = el.closest('.comtr') || el.closest('.athing');
+
+                if (parentComment) {
+                    // console.log(`Found parent for user ${text}:`, parentComment);
+                    const commentBody = parentComment.querySelector('.comment') || parentComment.querySelector('.commtext');
+                    if (commentBody) {
+                        commentBody.innerHTML = '<div style="color: red; font-weight: bold;">You don\'t want to read this comment content.</div>';
+                    } else {
+                        console.log(`Could not find comment body for user ${text}`);
+                    }
+                } else {
+                    console.log(`Could not find parent comment/post for user ${text}. Element structure:`, el.parentElement);
                 }
             }
         });
     }
 
-    function applyFilters() {
-        if (isListPage()) {
-            topics.forEach(topic => hideElements('.title a', topic, true)); // Exclude URLs in title checks
-            sites.forEach(site => hideElements('.title .sitebit', site));
-            users.forEach(user => hideElements('.comhead > a[href^="user?"]', user));
-        } else if (isDirectLink()) {
-            topics.forEach(topic => {
-                modifyWithWarning('.title a', topic, `This post relates to a blocked topic: ${topic}`);
-            });
-            sites.forEach(site => {
-                modifyWithWarning('.title .sitebit', site, `This post is from a blocked site: ${site}`);
-            });
-        }
+    async function applyFilters(config) {
+        const { topics, sites, users } = config;
 
-        // Apply user blocking across all contexts in comments
-        users.forEach(user => {
-            blockCommentContent('.comhead > a[href^="user?"]', user);
-        });
-
-        // Check for user profile pages
-        if (isUserPage()) {
-            const user = getUserFromUrl();
-            if (users.includes(user)) {
-                showUserWarning(user);
+        try {
+            // console.log('Applying filters...');
+            if (isListPage()) {
+                // console.log('Processing list page');
+                topics.forEach(topic => hideElements('.title a', topic, true));
+                sites.forEach(site => hideElements('.title .sitebit', site));
+                users.forEach(user => hideElements('.comhead > a[href^="user?"]', user));
+            } else if (isDirectLink()) {
+                // console.log('Processing direct link page');
+                topics.forEach(topic => {
+                    modifyWithWarning('.title a', topic, `This post relates to a blocked topic: ${topic}`);
+                });
+                sites.forEach(site => {
+                    modifyWithWarning('.title .sitebit', site, `This post is from a blocked site: ${site}`);
+                });
             }
+
+            // console.log('Processing users...');
+            users.forEach(user => {
+                blockCommentContent('.comhead > a[href^="user?"], .hnuser', user);
+            });
+
+            if (isUserPage()) {
+                // console.log('Processing user page');
+                const user = getUserFromUrl();
+                if (users.includes(user)) {
+                    showUserWarning(user);
+                }
+            }
+
+            console.log('Filters applied successfully');
+        } catch (error) {
+            console.error('Error in applyFilters:', error);
         }
     }
-    applyFilters();
+
+
+    function main() {
+        // console.log('Main function started');
+        fetchConfig().then(config => {
+            // console.log('Configuration fetched successfully');
+            applyFilters(config);
+        }).catch(error => {
+            console.error('Error in main function:', error);
+        });
+    }
+
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', main);
+    } else {
+        main();
+    }
+
+    main();
 })();
