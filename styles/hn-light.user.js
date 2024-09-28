@@ -29,6 +29,42 @@
             border-right: 1px solid #fff !important;
             margin: 0 auto; /* Center the container */
         }
+         /* Enhance Comments */
+           
+        .comment-tree .comment {
+          position: relative;
+          padding-left: 20px;
+        
+        
+          
+        }
+            
+            .comment::before {
+                content: '';
+                position: absolute;
+                left: 10px;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background: #ccc;
+            }
+        
+        .comment.reply::before {
+          top: 20px; /* Adjust to align with the start of the child comment */
+        }
+        .comment-tree .comment::before {
+          content: '';
+          position: absolute;
+          left: -10px;
+          top: 0;
+          bottom: 0;
+          width: 2px;
+          background-color: #ccc;
+        }
+            
+        .comment:hover {
+          background-color: #e6f7ff;
+        }            
         /* Responsive design for smaller screens */
         @media screen and (max-width: 600px) {
             #hnmain {
