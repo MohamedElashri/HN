@@ -39,27 +39,18 @@
           
         }
             
-            .comment::before {
-                content: '';
-                position: absolute;
-                left: 10px;
-                top: 0;
-                bottom: 0;
-                width: 2px;
-                background: #ccc;
-            }
+        .comment::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #ccc;
+        }
         
         .comment.reply::before {
           top: 20px; /* Adjust to align with the start of the child comment */
-        }
-        .comment-tree .comment::before {
-          content: '';
-          position: absolute;
-          left: -10px;
-          top: 0;
-          bottom: 0;
-          width: 2px;
-          background-color: #ccc;
         }
             
         .comment:hover {
