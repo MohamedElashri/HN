@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hacker News - Advanced Content Filter
 // @namespace    https://github.com/MohamedElashri/HN
-// @version      1.8.0
+// @version      1.9.0
 // @description  Enhanced filtering of elements on Hacker News based on topics, sites, and users.
 // @author       melashri
 // @match        https://news.ycombinator.com/*
@@ -27,7 +27,6 @@
                             const config = JSON.parse(response.responseText);
                             resolve(config);
                         } catch (error) {
-                            // console.error('JSON parse error:', error);
                             reject(new Error('Failed to parse configuration JSON'));
                         }
                     } else {
@@ -35,7 +34,6 @@
                     }
                 },
                 onerror: function(error) {
-                    // console.error('Network error:', error);
                     reject(new Error('Network error while fetching configuration'));
                 }
             });
@@ -54,31 +52,35 @@
         return window.location.pathname.includes('item') && document.querySelector('.fatitem') === null;
     }
 
-    function getUserFromUrl() {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get('id');
+    function hideElement(el) {
+        if (el) {
+            el.style.display = 'none';
+        }
     }
 
-    function showUserWarning(user) {
-        const warningMessage = `Warning: You are viewing the profile of a blocked user: ${user}`;
-        const userTable = document.querySelector('table');
-
-        if (userTable) {
-            const userRow = userTable.querySelector('tr');
-            if (userRow) {
-                const userNameCell = userRow.querySelector('td');
-                if (userNameCell) {
-                    userNameCell.innerHTML += ` <span style="color: red; font-weight: bold;">(${warningMessage})</span>`;
-                }
+    function hideFullThread(el) {
+        const row = el.closest('tr');
+        if (row) {
+            // Hide the current row
+            hideElement(row);
+            // Hide the next row (usually contains content)
+            hideElement(row.nextElementSibling);
+            // If there's a spacer row, hide it too
+            const spacerRow = row.nextElementSibling?.nextElementSibling;
+            if (spacerRow && spacerRow.classList.contains('spacer')) {
+                hideElement(spacerRow);
             }
         }
     }
 
-    function hideElementAndAdjust(el) {
-        el.style.display = 'none';
+    function shouldBlockContent(text, blockedTerms) {
+        return blockedTerms.some(term => {
+            const regex = new RegExp(`\\b${term}\\b`, 'i');
+            return regex.test(text);
+        });
     }
 
-    function hideElements(selector, text, excludeURLs = false) {
+    function hideElements(selector, blockedTerms, excludeURLs = false) {
         const elements = document.querySelectorAll(selector);
         elements.forEach(el => {
             let textContent = el.textContent;
@@ -88,26 +90,9 @@
                     textContent = match[1];
                 }
             }
-            const regex = new RegExp(`\\b${text}\\b`, 'i');
-            if (regex.test(textContent)) {
-                const row = el.closest('tr');
-                if (row) {
-                    hideElementAndAdjust(row.nextElementSibling);
-                    hideElementAndAdjust(row);
-                }
-            }
-        });
-    }
-
-    function modifyWithWarning(selector, text, message) {
-        const elements = document.querySelectorAll(selector);
-        const regex = new RegExp(`\\b${text}\\b`, 'i');
-        elements.forEach(el => {
-            if (regex.test(el.textContent)) {
-                if (!el.dataset.warningAdded) {
-                    el.insertAdjacentHTML('afterend', `<div style="color: red; font-weight: bold;">Warning: ${message}</div>`);
-                    el.dataset.warningAdded = true;
-                }
+            
+            if (shouldBlockContent(textContent, blockedTerms)) {
+                hideFullThread(el);
             }
         });
     }
@@ -124,69 +109,117 @@
         if (userElement && blockedUsers.includes(userElement.textContent.trim())) {
             hideCommentThread(commentElement);
         } else {
-            const directReplies = getDirectReplies(commentElement);
-            directReplies.forEach(reply => processComment(reply, blockedUsers));
+            // Process replies recursively
+            const replyContainer = commentElement.nextElementSibling;
+            if (replyContainer && replyContainer.classList.contains('reply')) {
+                const replies = replyContainer.querySelectorAll('.comtr');
+                replies.forEach(reply => processComment(reply, blockedUsers));
+            }
         }
-    }
-
-    function getDirectReplies(commentElement) {
-        const replyContainer = commentElement.nextElementSibling;
-        if (replyContainer && replyContainer.classList.contains('reply')) {
-            return replyContainer.querySelectorAll(':scope > .comtr');
-        }
-        return [];
     }
 
     function hideCommentThread(commentElement) {
-        commentElement.style.display = 'none';
+        hideElement(commentElement);
+        // Hide all nested replies
         const replyContainer = commentElement.nextElementSibling;
         if (replyContainer && replyContainer.classList.contains('reply')) {
-            replyContainer.style.display = 'none';
+            hideElement(replyContainer);
         }
+    }
+
+    function handleSubmissionPage(config) {
+        const { topics, sites, users } = config;
+        
+        // Check main submission
+        const titleElement = document.querySelector('.fatitem .title a');
+        const siteElement = document.querySelector('.fatitem .title .sitebit');
+        const submitterElement = document.querySelector('.fatitem .hnuser');
+        
+        let shouldHide = false;
+        
+        if (titleElement && shouldBlockContent(titleElement.textContent, topics)) {
+            shouldHide = true;
+        }
+        
+        if (siteElement && shouldBlockContent(siteElement.textContent, sites)) {
+            shouldHide = true;
+        }
+        
+        if (submitterElement && users.includes(submitterElement.textContent.trim())) {
+            shouldHide = true;
+        }
+        
+        if (shouldHide) {
+            // Hide the entire submission and its comments
+            const fatItem = document.querySelector('.fatitem');
+            if (fatItem) {
+                hideElement(fatItem);
+                // Hide all comments
+                const commentSection = fatItem.nextElementSibling;
+                if (commentSection) {
+                    hideElement(commentSection);
+                }
+            }
+        } else {
+            // If submission is allowed, still filter comments
+            handleComments(users);
+        }
+    }
+
+    function redirectToHome() {
+        window.location.href = 'https://news.ycombinator.com';
     }
 
     async function applyFilters(config) {
         const { topics, sites, users } = config;
 
         try {
-            // console.log('Applying filters...');
-            if (isListPage()) {
-                topics.forEach(topic => hideElements('.title a', topic, true));
-                sites.forEach(site => hideElements('.title .sitebit', site));
-                users.forEach(user => hideElements('.comhead > a[href^="user?"]', user));
-            } else if (isSubmissionPage() || isDirectCommentPage()) {
-                handleComments(users);
-            }
-
-            if (isSubmissionPage()) {
-                topics.forEach(topic => {
-                    modifyWithWarning('.title a', topic, `This post relates to a blocked topic: ${topic}`);
-                });
-                sites.forEach(site => {
-                    modifyWithWarning('.title .sitebit', site, `This post is from a blocked site: ${site}`);
-                });
-            }
-
+            // Handle user profile pages - redirect if blocked
             if (window.location.pathname.startsWith('/user')) {
-                const user = getUserFromUrl();
+                const urlParams = new URLSearchParams(window.location.search);
+                const user = urlParams.get('id');
                 if (users.includes(user)) {
-                    showUserWarning(user);
+                    redirectToHome();
+                    return;
                 }
             }
 
-            // console.log('Filters applied successfully');
+            // Handle list pages
+            if (isListPage()) {
+                topics.forEach(topic => hideElements('.title a', [topic], true));
+                sites.forEach(site => hideElements('.title .sitebit', [site]));
+                users.forEach(user => hideElements('.subtext > a[href^="user?"]', [user]));
+            }
+            
+            // Handle submission pages
+            else if (isSubmissionPage()) {
+                handleSubmissionPage(config);
+            }
+            
+            // Handle direct comment pages
+            else if (isDirectCommentPage()) {
+                handleComments(users);
+            }
         } catch (error) {
-            // console.error('Error in applyFilters:', error);
+            // Fail silently
         }
     }
 
     function main() {
-        // console.log('Main function started');
         fetchConfig().then(config => {
-            // console.log('Configuration fetched successfully');
             applyFilters(config);
-        }).catch(error => {
-            // console.error('Error in main function:', error);
+            
+            // Add mutation observer to handle dynamically loaded content
+            const observer = new MutationObserver(() => {
+                applyFilters(config);
+            });
+            
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        }).catch(() => {
+            // Fail silently
         });
     }
 
