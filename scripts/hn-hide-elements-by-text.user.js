@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         Hacker News - Advanced Content Filter
 // @namespace    https://github.com/MohamedElashri/HN
-// @version      1.9.0
+// @version      2.0.0
 // @description  Enhanced filtering of elements on Hacker News based on topics, sites, and users.
-// @author       melashri
+// @author       
 // @match        https://news.ycombinator.com/*
 // @grant        GM.xmlHttpRequest
-// @connect      github.com
+// @connect      raw.githubusercontent.com
 // @updateURL    https://github.com/MohamedElashri/HN/raw/main/scripts/hn-hide-elements-by-text.user.js
 // @downloadURL  https://github.com/MohamedElashri/HN/raw/main/scripts/hn-hide-elements-by-text.user.js
 // ==/UserScript==
@@ -14,9 +14,9 @@
 (function() {
     'use strict';
 
-    const CONFIG_URL = 'https://github.com/MohamedElashri/HN/raw/main/scripts/utils/lists.json';
+    const CONFIG_URL = 'https://raw.githubusercontent.com/MohamedElashri/HN/main/scripts/utils/lists.json';
 
-    async function fetchConfig() {
+    function fetchConfig() {
         return new Promise((resolve, reject) => {
             GM.xmlHttpRequest({
                 method: 'GET',
@@ -27,21 +27,24 @@
                             const config = JSON.parse(response.responseText);
                             resolve(config);
                         } catch (error) {
-                            reject(new Error('Failed to parse configuration JSON'));
+                            console.error('Failed to parse configuration JSON:', error);
+                            reject(error);
                         }
                     } else {
-                        reject(new Error(`Failed to fetch configuration. Status: ${response.status}`));
+                        console.error(`Failed to fetch configuration. Status: ${response.status}`);
+                        reject(new Error(`HTTP status ${response.status}`));
                     }
                 },
                 onerror: function(error) {
-                    reject(new Error('Network error while fetching configuration'));
+                    console.error('Network error while fetching configuration:', error);
+                    reject(error);
                 }
             });
         });
     }
 
     function isListPage() {
-        return /news|newest|best|ask|show|front|jobs/.test(window.location.pathname);
+        return /^(\/(news|newest|best|ask|show|front|jobs)\/?)?$/.test(window.location.pathname);
     }
 
     function isSubmissionPage() {
@@ -49,23 +52,18 @@
     }
 
     function isDirectCommentPage() {
-        return window.location.pathname.includes('item') && document.querySelector('.fatitem') === null;
+        return window.location.pathname.includes('item') && !isSubmissionPage();
     }
 
     function hideElement(el) {
-        if (el) {
-            el.style.display = 'none';
-        }
+        if (el) el.style.display = 'none';
     }
 
     function hideFullThread(el) {
         const row = el.closest('tr');
         if (row) {
-            // Hide the current row
             hideElement(row);
-            // Hide the next row (usually contains content)
             hideElement(row.nextElementSibling);
-            // If there's a spacer row, hide it too
             const spacerRow = row.nextElementSibling?.nextElementSibling;
             if (spacerRow && spacerRow.classList.contains('spacer')) {
                 hideElement(spacerRow);
@@ -73,54 +71,45 @@
         }
     }
 
-    function shouldBlockContent(text, blockedTerms) {
-        return blockedTerms.some(term => {
-            const regex = new RegExp(`\\b${term}\\b`, 'i');
-            return regex.test(text);
-        });
-    }
-
-    function hideElements(selector, blockedTerms, excludeURLs = false) {
-        const elements = document.querySelectorAll(selector);
-        elements.forEach(el => {
+    function hideElements(selector, matcher, excludeURLs = false) {
+        document.querySelectorAll(selector).forEach(el => {
             let textContent = el.textContent;
             if (excludeURLs) {
                 const match = textContent.match(/^(.*)\s+\(\w+:\/\/\S+\)$/);
-                if (match) {
-                    textContent = match[1];
-                }
+                if (match) textContent = match[1];
             }
-            
-            if (shouldBlockContent(textContent, blockedTerms)) {
-                hideFullThread(el);
+            let shouldHide = false;
+            if (matcher instanceof RegExp) {
+                shouldHide = matcher.test(textContent);
+            } else if (matcher instanceof Set) {
+                shouldHide = matcher.has(textContent.trim());
             }
+            if (shouldHide) hideFullThread(el);
         });
     }
 
-    function handleComments(blockedUsers) {
-        const allComments = document.querySelectorAll('.comtr');
-        allComments.forEach(comment => {
-            processComment(comment, blockedUsers);
+    function handleComments(blockedUsersSet) {
+        document.querySelectorAll('.comtr').forEach(comment => {
+            processComment(comment, blockedUsersSet);
         });
     }
 
-    function processComment(commentElement, blockedUsers) {
+    function processComment(commentElement, blockedUsersSet) {
         const userElement = commentElement.querySelector('.hnuser');
-        if (userElement && blockedUsers.includes(userElement.textContent.trim())) {
+        if (userElement && blockedUsersSet.has(userElement.textContent.trim())) {
             hideCommentThread(commentElement);
         } else {
-            // Process replies recursively
             const replyContainer = commentElement.nextElementSibling;
             if (replyContainer && replyContainer.classList.contains('reply')) {
-                const replies = replyContainer.querySelectorAll('.comtr');
-                replies.forEach(reply => processComment(reply, blockedUsers));
+                replyContainer.querySelectorAll('.comtr').forEach(reply => {
+                    processComment(reply, blockedUsersSet);
+                });
             }
         }
     }
 
     function hideCommentThread(commentElement) {
         hideElement(commentElement);
-        // Hide all nested replies
         const replyContainer = commentElement.nextElementSibling;
         if (replyContainer && replyContainer.classList.contains('reply')) {
             hideElement(replyContainer);
@@ -128,41 +117,26 @@
     }
 
     function handleSubmissionPage(config) {
-        const { topics, sites, users } = config;
-        
-        // Check main submission
+        const { topicsRegex, sitesRegex, usersSet } = config;
         const titleElement = document.querySelector('.fatitem .title a');
         const siteElement = document.querySelector('.fatitem .title .sitebit');
         const submitterElement = document.querySelector('.fatitem .hnuser');
-        
+
         let shouldHide = false;
-        
-        if (titleElement && shouldBlockContent(titleElement.textContent, topics)) {
-            shouldHide = true;
-        }
-        
-        if (siteElement && shouldBlockContent(siteElement.textContent, sites)) {
-            shouldHide = true;
-        }
-        
-        if (submitterElement && users.includes(submitterElement.textContent.trim())) {
-            shouldHide = true;
-        }
-        
+
+        if (titleElement && topicsRegex.test(titleElement.textContent)) shouldHide = true;
+        if (siteElement && sitesRegex.test(siteElement.textContent)) shouldHide = true;
+        if (submitterElement && usersSet.has(submitterElement.textContent.trim())) shouldHide = true;
+
         if (shouldHide) {
-            // Hide the entire submission and its comments
             const fatItem = document.querySelector('.fatitem');
             if (fatItem) {
                 hideElement(fatItem);
-                // Hide all comments
                 const commentSection = fatItem.nextElementSibling;
-                if (commentSection) {
-                    hideElement(commentSection);
-                }
+                if (commentSection) hideElement(commentSection);
             }
         } else {
-            // If submission is allowed, still filter comments
-            handleComments(users);
+            handleComments(usersSet);
         }
     }
 
@@ -171,55 +145,50 @@
     }
 
     async function applyFilters(config) {
+        if (!config) return;
+
         const { topics, sites, users } = config;
+        const topicsRegex = new RegExp(`\\b(${topics.join('|')})\\b`, 'i');
+        const sitesRegex = new RegExp(`\\b(${sites.join('|')})\\b`, 'i');
+        const usersSet = new Set(users);
+
+        const compiledConfig = { topicsRegex, sitesRegex, usersSet };
 
         try {
-            // Handle user profile pages - redirect if blocked
             if (window.location.pathname.startsWith('/user')) {
                 const urlParams = new URLSearchParams(window.location.search);
                 const user = urlParams.get('id');
-                if (users.includes(user)) {
+                if (usersSet.has(user)) {
                     redirectToHome();
                     return;
                 }
             }
 
-            // Handle list pages
             if (isListPage()) {
-                topics.forEach(topic => hideElements('.title a', [topic], true));
-                sites.forEach(site => hideElements('.title .sitebit', [site]));
-                users.forEach(user => hideElements('.subtext > a[href^="user?"]', [user]));
-            }
-            
-            // Handle submission pages
-            else if (isSubmissionPage()) {
-                handleSubmissionPage(config);
-            }
-            
-            // Handle direct comment pages
-            else if (isDirectCommentPage()) {
-                handleComments(users);
+                hideElements('.title a', topicsRegex, true);
+                hideElements('.title .sitebit', sitesRegex);
+                hideElements('.subtext > a[href^="user?"]', usersSet);
+            } else if (isSubmissionPage()) {
+                handleSubmissionPage(compiledConfig);
+            } else if (isDirectCommentPage()) {
+                handleComments(usersSet);
             }
         } catch (error) {
-            // Fail silently
+            console.error('Error applying filters:', error);
         }
     }
 
     function main() {
         fetchConfig().then(config => {
             applyFilters(config);
-            
-            // Add mutation observer to handle dynamically loaded content
+
             const observer = new MutationObserver(() => {
                 applyFilters(config);
             });
-            
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true
-            });
-        }).catch(() => {
-            // Fail silently
+
+            observer.observe(document.body, { childList: true, subtree: true });
+        }).catch(error => {
+            console.error('Failed to initialize script:', error);
         });
     }
 
