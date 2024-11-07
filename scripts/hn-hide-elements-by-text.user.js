@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Hacker News - Advanced Content Filter
 // @namespace    https://github.com/MohamedElashri/HN
-// @version      2.0.0
+// @version      2.1.0
 // @description  Enhanced filtering of elements on Hacker News based on topics, sites, and users.
-// @author       
+// @author
 // @match        https://news.ycombinator.com/*
 // @grant        GM.xmlHttpRequest
 // @connect      raw.githubusercontent.com
@@ -55,6 +55,10 @@
         return window.location.pathname.includes('item') && !isSubmissionPage();
     }
 
+    function isUserThreadsPage() {
+        return window.location.pathname.startsWith('/threads');
+    }
+
     function hideElement(el) {
         if (el) el.style.display = 'none';
     }
@@ -89,30 +93,66 @@
     }
 
     function handleComments(blockedUsersSet) {
-        document.querySelectorAll('.comtr').forEach(comment => {
-            processComment(comment, blockedUsersSet);
+        // Select all top-level comments
+        const commentRows = document.querySelectorAll('tr.comtr');
+        commentRows.forEach(commentRow => {
+            const indentImg = commentRow.querySelector('.ind img');
+            const indentLevel = indentImg ? parseInt(indentImg.getAttribute('width'), 10) : 0;
+            if (indentLevel === 0) {
+                processCommentAndReplies(commentRow, blockedUsersSet);
+            }
         });
     }
 
-    function processComment(commentElement, blockedUsersSet) {
+    function processCommentAndReplies(commentElement, blockedUsersSet) {
+        if (!commentElement) return;
+
         const userElement = commentElement.querySelector('.hnuser');
-        if (userElement && blockedUsersSet.has(userElement.textContent.trim())) {
-            hideCommentThread(commentElement);
+        const isBlockedUser = userElement && blockedUsersSet.has(userElement.textContent.trim());
+
+        if (isBlockedUser) {
+            hideCommentSubtree(commentElement);
         } else {
-            const replyContainer = commentElement.nextElementSibling;
-            if (replyContainer && replyContainer.classList.contains('reply')) {
-                replyContainer.querySelectorAll('.comtr').forEach(reply => {
-                    processComment(reply, blockedUsersSet);
-                });
+            // Process child comments
+            let nextRow = commentElement.nextElementSibling;
+            const indentImg = commentElement.querySelector('.ind img');
+            const currentIndent = indentImg ? parseInt(indentImg.getAttribute('width'), 10) : 0;
+
+            while (nextRow) {
+                const nextIndentImg = nextRow.querySelector('.ind img');
+                const nextIndent = nextIndentImg ? parseInt(nextIndentImg.getAttribute('width'), 10) : 0;
+
+                if (nextIndent > currentIndent) {
+                    processCommentAndReplies(nextRow, blockedUsersSet);
+                } else if (nextIndent <= currentIndent) {
+                    break;
+                }
+
+                nextRow = nextRow.nextElementSibling;
             }
         }
     }
 
-    function hideCommentThread(commentElement) {
+    function hideCommentSubtree(commentElement) {
+        // Hide the comment row
         hideElement(commentElement);
-        const replyContainer = commentElement.nextElementSibling;
-        if (replyContainer && replyContainer.classList.contains('reply')) {
-            hideElement(replyContainer);
+
+        // Hide all descendant comments
+        let nextRow = commentElement.nextElementSibling;
+        const indentImg = commentElement.querySelector('.ind img');
+        const currentIndent = indentImg ? parseInt(indentImg.getAttribute('width'), 10) : 0;
+
+        while (nextRow) {
+            const nextIndentImg = nextRow.querySelector('.ind img');
+            const nextIndent = nextIndentImg ? parseInt(nextIndentImg.getAttribute('width'), 10) : 0;
+
+            if (nextIndent > currentIndent) {
+                hideElement(nextRow);
+            } else if (nextIndent <= currentIndent) {
+                break;
+            }
+
+            nextRow = nextRow.nextElementSibling;
         }
     }
 
@@ -148,8 +188,11 @@
         if (!config) return;
 
         const { topics, sites, users } = config;
-        const topicsRegex = new RegExp(`\\b(${topics.join('|')})\\b`, 'i');
-        const sitesRegex = new RegExp(`\\b(${sites.join('|')})\\b`, 'i');
+        const escapedTopics = topics.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+        const escapedSites = sites.map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+
+        const topicsRegex = new RegExp(`\\b(${escapedTopics.join('|')})\\b`, 'i');
+        const sitesRegex = new RegExp(`\\b(${escapedSites.join('|')})\\b`, 'i');
         const usersSet = new Set(users);
 
         const compiledConfig = { topicsRegex, sitesRegex, usersSet };
@@ -170,7 +213,7 @@
                 hideElements('.subtext > a[href^="user?"]', usersSet);
             } else if (isSubmissionPage()) {
                 handleSubmissionPage(compiledConfig);
-            } else if (isDirectCommentPage()) {
+            } else if (isDirectCommentPage() || isUserThreadsPage()) {
                 handleComments(usersSet);
             }
         } catch (error) {
