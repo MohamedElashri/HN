@@ -6,6 +6,8 @@
 // @match        https://news.ycombinator.com/*
 // @grant        GM.xmlHttpRequest
 // @connect      raw.githubusercontent.com
+// @updateURL    https://github.com/MohamedElashri/HN/raw/main/scripts/hn-hide-elements-by-text.user.js
+// @downloadURL  https://github.com/MohamedElashri/HN/raw/main/scripts/hn-hide-elements-by-text.user.js
 // ==/UserScript==
 
 (function() {
