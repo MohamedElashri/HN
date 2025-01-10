@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hacker News Light Theme
 // @namespace    https://github.com/MohamedElashri/HN
-// @version      1.3
+// @version      1.4
 // @description  A Light custom theme for Hacker News
 // @author       melashri
 // @match        https://news.ycombinator.com/*
