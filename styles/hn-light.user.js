@@ -129,7 +129,7 @@
         }
         .comment {
             font-family: "Lucida Grande", "Open Sans", "Bitstream Vera Sans", "Verdana", sans-serif !important;
-            font-size: 105% !important;
+            font-size: 100% !important;
             line-height: 1.5 !important;
         }
         .default {
